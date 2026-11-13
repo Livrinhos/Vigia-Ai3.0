@@ -133,6 +133,7 @@ class Store:
             CREATE TABLE IF NOT EXISTS models(id TEXT PRIMARY KEY,name TEXT,path TEXT,sha256 TEXT,kind TEXT,origin TEXT,approved INTEGER DEFAULT 0,evaluation TEXT);
             CREATE TABLE IF NOT EXISTS audit(id INTEGER PRIMARY KEY AUTOINCREMENT,created REAL,action TEXT,details TEXT);
             CREATE TABLE IF NOT EXISTS image_sources(image_id TEXT,session_id TEXT,source TEXT,created REAL,PRIMARY KEY(image_id,session_id,source));
+            CREATE TABLE IF NOT EXISTS image_suggestions(image_id TEXT,job_id TEXT,revision INTEGER,model_sha256 TEXT,boxes TEXT,created REAL,state TEXT,PRIMARY KEY(image_id,job_id));
             ''')
             if 'extras' not in {r[1] for r in db.execute('PRAGMA table_info(uploads)')}:
                 db.execute('ALTER TABLE uploads ADD COLUMN extras TEXT')
@@ -212,6 +213,28 @@ class Store:
             counts={r[0]:r[1] for r in db.execute('SELECT state,COUNT(*) FROM images WHERE deleted=0 GROUP BY state')}
             sessions=[dict(r) for r in db.execute('SELECT * FROM sessions ORDER BY created DESC')]
         return dict(items=[dict(r) for r in rows],total=total,page=int(page),counts=counts,ready=counts.get('approved',0),sessions=sessions)
+
+    def image_ids(self,state='all',q='',session=''):
+        from .suggestions import MAX_BATCH
+        where=['i.deleted=0'];args=[]
+        if state=='ready':state='approved'
+        if state!='all':
+            if state not in ('pending','reviewed','approved','rejected'):raise ValueError('Filtro inválido.')
+            where.append('i.state=?');args.append(state)
+        if q:where.append('(i.name LIKE ? OR s.name LIKE ? OR i.source LIKE ?)');args += ['%'+q[:150]+'%']*3
+        if session:where.append('i.session_id=?');args.append(session)
+        with self.db() as db:
+            rows=db.execute('SELECT i.id FROM images i JOIN sessions s ON i.session_id=s.id WHERE '+' AND '.join(where)+' ORDER BY i.created DESC LIMIT ?',args+[MAX_BATCH+1]).fetchall()
+        if len(rows)>MAX_BATCH:raise ValueError('O filtro excede 5.000 imagens. Restrinja por sessão ou pesquisa.')
+        return [r['id'] for r in rows]
+
+    def suggestion(self,iid):
+        image=self.image(iid)
+        with self.db() as db:
+            r=db.execute("SELECT * FROM image_suggestions WHERE image_id=? AND revision=? AND state='pending' ORDER BY created DESC LIMIT 1",(iid,image['revision'])).fetchone()
+        if not r:return None
+        r=dict(r);r['boxes']=json.loads(r['boxes']);r['review_required']=True
+        return r
 
     def review(self,iid,data,expected_revision):
         ann=validate_annotations(data.get('annotation',{}));state=data.get('state')

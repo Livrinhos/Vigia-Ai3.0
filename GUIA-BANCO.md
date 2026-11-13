@@ -64,6 +64,32 @@ o download do original mantém seus bytes e metadados. Excluir da galeria leva �
 recuperável**, mediante confirmação; não apaga os arquivos. Aprovação em lote sem revisão individual
 não é permitida. As anotações aprovadas podem ser exportadas em YOLO.
 
+## Marcar várias imagens de uma vez
+
+1. Encerre o monitoramento. Em **Treinamento da IA**, escolha o modelo inicial `epi.pt`
+   e CPU ou CUDA disponível; esses campos também são usados pelas sugestões.
+2. Na galeria, filtre por sessão e **Pendentes**. Use **Selecionar todas do filtro**
+   (até 5.000 imagens, incluindo outras páginas) ou marque apenas as fotos desejadas.
+3. Clique em **Sugerir marcações em lote**. Acompanhe o progresso e eventual cancelamento
+   em **Trabalhos e resultados**. Uma instância do detector é reutilizada, processando
+   uma imagem por vez para limitar memória. Nada é treinado ou aprovado nesse passo.
+4. Ao terminar, clique em **Revisar selecionadas**. As sugestões aparecem no editor.
+   Corrija caixas erradas e objetos que ficaram sem marcação; selecione **Aprovada**,
+   confirme a revisão e os avisos e use **Salvar e próxima**. As confirmações não são
+   copiadas para a foto seguinte. **Pular sem salvar** deixa a foto para outra revisão.
+5. Prepare o dataset e inicie o treinamento somente depois da revisão.
+
+O lote processa somente imagens pendentes sem caixas nem negativo confirmado. Fotos já
+anotadas/revisadas são puladas, sem alteração. As sugestões ficam separadas no catálogo,
+fora das anotações de treino. Edições concorrentes invalidam sugestões antigas. Se cancelar,
+os resultados das imagens já concluídas continuam disponíveis; é possível processar uma nova
+seleção depois. Falhas individuais aparecem no resultado do trabalho.
+
+Uma foto sem detecções **não é aprovada nem marcada como negativo automaticamente**.
+O detector atual sugere objetos EPI, sem criar uma classe `no_helmet` ou afirmar ausência
+nas outras pessoas. Confira também os EPIs que ele deixou de detectar. Esta assistência
+reduz o desenho manual, mas sua qualidade depende dos modelos preservados.
+
 ## Preparar dataset e iniciar treinamento
 
 **Preparar dataset** usa somente imagens aprovadas. Une grupos de origem e imagens muito

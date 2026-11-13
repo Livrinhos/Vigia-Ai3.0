@@ -3,6 +3,31 @@
 Data: 13/11/2026. Base preservada: VigiaAI-Performance, construída a partir de
 `susuque-samuel/VigiaAi@e1d054ef33ea1fd007d31ed9c96440327f81859f`.
 
+## Atualização: sugestões em lote e revisão sequencial
+
+O Banco de Imagens permite selecionar todas as imagens de um filtro (até 5.000, incluindo
+outras páginas) e solicitar marcações de EPI em lote. O processo reutiliza uma instância YOLO,
+com uma imagem por inferência; os resultados são persistidos individualmente em tabela nova
+do catálogo, separados das anotações humanas. Não altera fotos, pesos, anotações existentes,
+aprovações ou datasets. Uma revisão concorrente impede a gravação de sugestão desatualizada.
+
+O editor apresenta sugestões para revisão individual em fila, com **Salvar e próxima** e
+**Pular sem salvar**. Confirmações humanas e de qualidade são reiniciadas em cada foto.
+Ausência de detecções não marca automaticamente negativos ou pessoas sem capacete. O lote
+pula fotos já anotadas/revisadas e mantém resultados concluídos após cancelamento.
+
+Validação desta atualização: 39 testes Python do projeto 3.0/instalador, incluindo oito novos
+testes de lote, e o teste JavaScript ampliado da galeria/revisão. Inferência real CPU em três
+imagens sintéticas executada separadamente: três resultados persistidos, nenhuma anotação
+humana alterada, nenhuma aprovação e nenhum treinamento. O SHA-256 de `epi.pt` permaneceu
+`1f9fdde980c2e56c22c8857b778b5213fb07fc21fbcdb05fe71ef9c1fb50ce0e`.
+Os três pesos originais passaram novamente pela verificação de tamanho/hash do instalador.
+Não foi medida precisão em fotos reais ou velocidade na T400 nesta atualização.
+
+O smoke test opcional é `python tests/smoke_suggestions.py CAMINHO_NOVO_DE_TESTE`;
+ele usa somente imagens sintéticas explícitas e não promove modelos. Os testes JavaScript
+usam Flask real para importação/revisão e uma fixture explícita para sugestões de inferência.
+
 ## Entrega
 
 O desenvolvimento continua na branch `development/vigiaai-3-banco-imagens` do repositório

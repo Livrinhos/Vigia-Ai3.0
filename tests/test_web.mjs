@@ -29,9 +29,21 @@ test('galeria e revisão usam JavaScript real e rotas Flask reais',async t=>{
   createInterface({input:child.stdout}).on('line',line=>{const r=JSON.parse(line),p=pending.get(r.id);pending.delete(r.id);p.resolve(new Response([204,304].includes(r.status)?null:Buffer.from(r.body,'base64'),{status:r.status,headers:r.headers}));});
   child.on('error',e=>{for(const p of pending.values())p.reject(e);});
   child.on('exit',()=>{for(const p of pending.values())p.reject(Error('Ponte de testes encerrada.'));});
-  const fetch=async(url,options={})=>{const message={id:++sequence,url,method:options.method||'GET',headers:options.headers||{}};
+  // Fixtures explícitas só para a inferência; armazenamento e revisão usam Flask real.
+  let suggestionFixture=false,batchPayload=null;
+  const fetch=async(url,options={})=>{
+    if(url==='/api/banco/images/suggest-batch'){
+      batchPayload=JSON.parse(options.body);suggestionFixture=true;
+      return Response.json({job:'explicit-inference-fixture'},{status:202});
+    }
+    if(url==='/api/banco/jobs/explicit-inference-fixture')return Response.json({kind:'suggest_batch',state:'succeeded',result:{suggested:1,review_required:true}});
+    const message={id:++sequence,url,method:options.method||'GET',headers:options.headers||{}};
     if(options.body instanceof Blob)message.binary=Buffer.from(await options.body.arrayBuffer()).toString('base64');else if(options.body)message.body=options.body;
-    return new Promise((resolve,reject)=>{pending.set(message.id,{resolve,reject});child.stdin.write(JSON.stringify(message)+'\n');});};
+    const response=await new Promise((resolve,reject)=>{pending.set(message.id,{resolve,reject});child.stdin.write(JSON.stringify(message)+'\n');});
+    if(suggestionFixture&&/^\/api\/banco\/images\/[a-f0-9]{32}$/.test(url)&&message.method==='GET'){
+      const row=await response.json();row.suggestion={boxes:[{scope:'epi',label:'capacete',xyxy:[.1,.1,.5,.5],origin:'sugestao_ia'}],review_required:true};return Response.json(row,{status:response.status});
+    }
+    return response;};
   const html=await readFile(new URL('../web/banco.html',import.meta.url),'utf8');const elements=new Map([...html.matchAll(/id="([^"]+)"/g)].map(m=>[m[1],new Element()]));
   for(const id of ['initialModel','trainDataset','sessionFilter','scope','label','reviewState','datasetKind','device','batch','imgsz'])elements.get(id).tag='select';
   for(const [id,value] of [['scope','epi'],['reviewState','pending'],['datasetKind','detector'],['device','cpu']])elements.get(id).value=value;
@@ -58,4 +70,35 @@ test('galeria e revisão usam JavaScript real e rotas Flask reais',async t=>{
   await vm.runInContext('saveReview()',context);assert.equal(elements.get('countReady').textContent,1);
   assert.equal(elements.get('editor').open,false);
   const original=await(await fetch('/api/banco/images/'+id)).json();assert.equal(original.annotation.boxes[0].label,'capacete');
+  // Reabre uma pendente vazia para a fila assistida, sem aprovação em lote.
+  const reset=await fetch(`/api/banco/images/${id}/review`,{method:'PUT',headers:{'Content-Type':'application/json','X-VigiaAI':'1'},body:JSON.stringify({revision:original.revision,state:'pending',annotation:{boxes:[],negative:false}})});
+  assert.equal(reset.status,200);
+  const fixture2=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAIAAABt+uBvAAAA0UlEQVR4nO3QMQEAIAzAsIF/z6AAaiB5+3XNnOFtfxoGNYOCQcGgYFAwKBgUDAoGBYOCQcGgYFAwKBgUDAoGBYOCQcGgYFAwKBgUDAoGBYOCQcGgYFAwKBgUDAoGBYOCQcGgYFAwKBgUDAoGBYOCQcGgYFAwKBgUDAoGBYOCQcGgYFAwKBgUDAoGBYOCQcGgYFAwKBgUDAoGBYOCQcGgYFAwKBgUDAoGBYOCQcGgYFAwKBgUDAoGBYOCQcGgYFAwKBgUDAoGBYOCQcGgYFAwaP4uCb4Bv4ySknYAAAAASUVORK5CYII=','base64');
+  const u2=await(await fetch('/api/banco/uploads',{method:'POST',headers:{'Content-Type':'application/json','X-VigiaAI':'1'},body:JSON.stringify({session:sid.id,name:'synthetic-blue.png',size:fixture2.length})})).json();
+  await fetch(`/api/banco/uploads/${u2.id}/chunk?offset=0`,{method:'PUT',headers:{'X-VigiaAI':'1'},body:new Blob([fixture2])});
+  const j2=await(await fetch(`/api/banco/uploads/${u2.id}/finish`,{method:'POST',headers:{'Content-Type':'application/json','X-VigiaAI':'1'},body:'{}'})).json();
+  let r2;const end2=Date.now()+15000;
+  do{r2=await(await fetch('/api/banco/jobs/'+j2.job)).json();if(!['queued','running'].includes(r2.state))break;await new Promise(r=>globalThis.setTimeout(r,50));}while(Date.now()<end2);
+  assert.equal(r2.state,'succeeded',JSON.stringify(r2));
+  await vm.runInContext('refreshGallery()',context);
+  await elements.get('selectAllFiltered').click();assert.equal(elements.get('selectedCount').textContent,'2 selecionadas');
+  await elements.get('batchSuggest').click();assert.equal(batchPayload.ids.length,2);assert.ok(batchPayload.ids.includes(id));assert.equal(batchPayload.device,'cpu');
+  assert.equal(elements.get('countReady').textContent,0);
+  await elements.get('reviewSelected').click();
+  assert.equal(elements.get('queueStatus').textContent,'Revisão 1 de 2');
+  assert.match(elements.get('suggestionStatus').textContent,/sugerida/);
+  assert.equal(vm.runInContext('boxes[0].origin',context),'sugestao_ia');
+  assert.equal(elements.get('humanReview').checked,false);
+  elements.get('reviewState').value='approved';
+  await elements.get('saveNext').click();assert.equal(elements.get('editor').open,true);
+  assert.match(elements.get('message').textContent,/humana/); // Backend rejeita sem revisão explícita.
+  elements.get('humanReview').checked=true;elements.get('ackIssues').checked=true;
+  await elements.get('saveNext').click();assert.equal(elements.get('editor').open,true);
+  assert.equal(elements.get('queueStatus').textContent,'Revisão 2 de 2');
+  assert.equal(elements.get('humanReview').checked,false);assert.equal(elements.get('ackIssues').checked,false);
+  assert.equal(elements.get('reviewState').value,'pending');
+  elements.get('reviewState').value='approved';elements.get('humanReview').checked=true;elements.get('ackIssues').checked=true;
+  await elements.get('saveNext').click();assert.equal(elements.get('editor').open,false);
+  assert.equal(elements.get('countReady').textContent,2);
+  assert.equal(vm.runInContext('reviewIndex',context),-1);
 });

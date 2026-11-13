@@ -2,6 +2,7 @@
 const $=id=>document.getElementById(id);
 const states={pending:'Pendente',reviewed:'Revisada',approved:'Aprovada',rejected:'Rejeitada'};
 let config={},filter='all',page=1,total=0,items=[],selected=new Set(),current=null,boxes=[],chosen=-1,loadedImage=null,drag=null,watched=null,uploading=false;
+let reviewQueue=[],reviewIndex=-1;
 const node=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e;};
 function say(text,error=false){$('message').textContent=text;$('message').className='message'+(error?' error':'');$('message').hidden=false;}
 async function api(url,data,method='POST'){
@@ -85,14 +86,35 @@ function labelOptions(){
   const scope=$('scope').value,values=scope==='epi'?(config.classes||['capacete','colete','oculos','luvas','mascara']):scope==='pessoa'?['pessoa']:['com_capacete','sem_capacete','inconclusivo'];
   $('label').replaceChildren();for(const v of values)option($('label'),v,v.replaceAll('_',' '));
 }
-async function openImage(id){
+async function openImage(id,fromQueue=false){
+  if(!fromQueue){reviewQueue=[];reviewIndex=-1;}
   current=await get('/api/banco/images/'+id);boxes=structuredClone(current.annotation.boxes);chosen=-1;
   $('imageName').textContent=current.name;$('negative').checked=current.annotation.negative;$('notes').value=current.annotation.notes;
   $('reviewState').value=current.state;$('humanReview').checked=false;$('ackIssues').checked=false;
+  const suggestion=current.suggestion;
+  if(current.state==='pending'&&!boxes.length&&!current.annotation.negative&&suggestion){
+    boxes=structuredClone(suggestion.boxes);
+    $('suggestionStatus').textContent=boxes.length?`${boxes.length} caixa(s) sugerida(s) em lote. Confira objetos que a IA deixou passar e corrija as caixas antes de aprovar.`:'A IA não encontrou EPIs nesta imagem. Isso não confirma ausência: confira a foto e anote o que estiver visível.';
+  }else $('suggestionStatus').textContent='';
+  const inQueue=reviewIndex>=0;
+  $('queueStatus').textContent=inQueue?`Revisão ${reviewIndex+1} de ${reviewQueue.length}`:'';
+  $('saveNext').hidden=!inQueue;$('skipNext').hidden=!inQueue;
   $('downloadOriginal').href=`/api/banco/images/${id}/file?download=1`;
   $('imageMeta').textContent=JSON.stringify({dimensoes:`${current.width}×${current.height}`,importada_em:new Date(current.created*1000).toLocaleString(),sessao:current.session_name,origem:current.source,todas_as_origens:current.sources,similares_para_revisar:current.related,grupo:current.group_key,avisos:current.issues,metadados:current.metadata},null,2);
   loadedImage=new Image();loadedImage.onload=()=>{const c=$('canvas');c.width=loadedImage.naturalWidth;c.height=loadedImage.naturalHeight;draw();};loadedImage.src=`/api/banco/images/${id}/file`;
   labelOptions();renderBoxes();$('editor').showModal();
+}
+async function startReviewQueue(){
+  if(!selected.size)throw new Error('Selecione imagens para revisar.');
+  reviewQueue=[...selected];reviewIndex=0;await openImage(reviewQueue[0],true);
+}
+async function advanceReviewQueue(){
+  reviewIndex++;
+  while(reviewIndex<reviewQueue.length){
+    try{await openImage(reviewQueue[reviewIndex],true);return;}
+    catch(e){say('Não foi possível abrir uma imagem da fila: '+e.message,true);reviewIndex++;}
+  }
+  reviewQueue=[];reviewIndex=-1;$('editor').close();say('Fila de revisão concluída. Só as revisões salvas foram aplicadas.');
 }
 function draw(){
   if(!loadedImage||!loadedImage.complete)return;
@@ -113,11 +135,13 @@ $('canvas').addEventListener('pointerup',e=>{
 function renderBoxes(){
   $('boxList').replaceChildren();boxes.forEach((b,i)=>{const row=node('div',`${i+1} · ${b.scope}: ${b.label.replaceAll('_',' ')}${b.origin==='sugestao_ia'?' · sugestão não revisada':''}`,'row'+(chosen===i?' chosen':''));row.tabIndex=0;row.addEventListener('click',()=>{chosen=i;$('scope').value=b.scope;labelOptions();$('label').value=b.label;renderBoxes();draw();});$('boxList').append(row);});
 }
-async function saveReview(){
+async function saveReview(next=false){
   if(!current)return;
   current=await api(`/api/banco/images/${current.id}/review`,{revision:current.revision,state:$('reviewState').value,
     annotation:{boxes,negative:$('negative').checked,notes:$('notes').value},human_reviewed:$('humanReview').checked,issues_acknowledged:$('ackIssues').checked},'PUT');
   say('Revisão salva. O original não foi alterado.');$('editor').close();await refreshGallery();
+  if(next&&reviewIndex>=0)await advanceReviewQueue();
+  else {reviewQueue=[];reviewIndex=-1;}
 }
 
 async function refreshJobs(){
@@ -149,12 +173,27 @@ for(const button of $('filters').querySelectorAll('button'))action(button,async(
 let searchTimer;$('search').addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>{page=1;refreshGallery().catch(e=>say(e.message,true));},250);});$('sessionFilter').addEventListener('change',()=>{page=1;refreshGallery().catch(e=>say(e.message,true));});
 $('selectPage').addEventListener('change',e=>{for(const i of items)e.target.checked?selected.add(i.id):selected.delete(i.id);refreshGallery().catch(e=>say(e.message,true));});
 action($('refresh'),refreshAll);action($('previous'),async()=>{page--;await refreshGallery();});action($('next'),async()=>{page++;await refreshGallery();});
+action($('selectAllFiltered'),async()=>{
+  const q=new URLSearchParams({state:filter,q:$('search').value,session:$('sessionFilter').value});
+  const r=await get('/api/banco/images/selection?'+q);selected=new Set(r.ids);await refreshGallery();
+});
+action($('clearSelection'),async()=>{selected.clear();await refreshGallery();});
+action($('batchSuggest'),async()=>{
+  if(!selected.size)throw new Error('Selecione imagens ou use Selecionar todas do filtro.');
+  if(!confirm(`Sugerir marcações para ${selected.size} imagens usando o modelo inicial e dispositivo selecionados em Treinamento da IA? Encerre o monitoramento. Imagens já anotadas/revisadas serão preservadas. Nenhuma aprovação automática.`))return;
+  const r=await api('/api/banco/images/suggest-batch',{ids:[...selected],model:$('initialModel').value,device:$('device').value});
+  say('Sugestões em lote iniciadas. Acompanhe em Trabalhos e resultados e depois use Revisar selecionadas.');await watchJob(r.job);
+});
+action($('reviewSelected'),startReviewQueue);
 for(const [id,state] of [['bulkReject','rejected'],['bulkPending','pending']])action($(id),async()=>{await api('/api/banco/images/bulk-review',{ids:[...selected],state});selected.clear();await refreshGallery();});
 action($('trash'),async()=>{if(!selected.size)throw new Error('Selecione imagens.');if(!confirm(`Mover ${selected.size} imagem(ns) para a lixeira recuperável? Os arquivos serão preservados.`))return;await api('/api/banco/images/trash',{ids:[...selected],confirmation:'CONFIRMAR'});selected.clear();await refreshGallery();});
 action($('trashOpen'),async()=>{const d=await get('/api/banco/trash');$('trashList').replaceChildren();for(const image of d.items){const row=node('div',undefined,'row'),b=node('button','Restaurar');row.append(node('span',image.name),b);action(b,async()=>{await api('/api/banco/images/restore',{ids:[image.id],confirmation:'CONFIRMAR'});row.remove();await refreshGallery();});$('trashList').append(row);}$('trashDialog').showModal();});
-$('closeTrash').addEventListener('click',()=>$('trashDialog').close());$('closeEditor').addEventListener('click',()=>$('editor').close());$('scope').addEventListener('change',labelOptions);
+$('closeTrash').addEventListener('click',()=>$('trashDialog').close());$('closeEditor').addEventListener('click',()=>{reviewQueue=[];reviewIndex=-1;$('editor').close();});$('scope').addEventListener('change',labelOptions);
+$('editor').addEventListener('cancel',()=>{reviewQueue=[];reviewIndex=-1;});
 action($('changeLabel'),async()=>{if(chosen<0)throw new Error('Selecione uma caixa.');boxes[chosen].scope=$('scope').value;boxes[chosen].label=$('label').value;boxes[chosen].origin='manual';renderBoxes();draw();});
-action($('removeBox'),async()=>{if(chosen<0)throw new Error('Selecione uma caixa.');boxes.splice(chosen,1);chosen=-1;renderBoxes();draw();});action($('saveReview'),saveReview);
+action($('removeBox'),async()=>{if(chosen<0)throw new Error('Selecione uma caixa.');boxes.splice(chosen,1);chosen=-1;renderBoxes();draw();});action($('saveReview'),()=>saveReview());
+action($('saveNext'),()=>saveReview(true));
+action($('skipNext'),async()=>{if(confirm('Pular esta imagem sem salvar alterações?'))await advanceReviewQueue();});
 action($('suggest'),async()=>{if(!current)throw new Error('Abra uma imagem.');if(!confirm('Executar o modelo local para sugerir caixas? Elas precisarão de revisão humana.'))return;const j=await api(`/api/banco/images/${current.id}/suggest`,{model:$('initialModel').value,device:$('device').value});const result=await waitJob(j.job);if(result.image!==current?.id||result.revision!==current.revision)throw new Error('Imagem mudou; descarte a sugestão e recarregue.');boxes.push(...result.boxes);$('humanReview').checked=false;renderBoxes();draw();say('Sugestões inseridas para correção. Nenhuma aprovação automática.');});
 action($('export'),async()=>{if(!selected.size)throw new Error('Selecione imagens aprovadas.');const q=new URLSearchParams();for(const id of selected)q.append('id',id);const response=await fetch('/api/banco/export/yolo?'+q);if(!response.ok){const e=await response.json();throw new Error(e.error);}const url=URL.createObjectURL(await response.blob()),a=node('a');a.href=url;a.download='anotacoes-yolo.zip';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
 action($('prepare'),async()=>{const r=await api('/api/banco/datasets',{name:$('datasetName').value,kind:$('datasetKind').value,test_independent:$('testIndependent').checked});await watchJob(r.job);say('Preparação iniciada. Consulte os erros e a auditoria antes de treinar.');});

@@ -37,10 +37,10 @@ class Jobs:
             return any(self._alive(jid) for jid in rows)
 
     def start(self,kind,request):
-        if kind not in ('import','dataset','suggest','train','evaluate'):raise ValueError('Trabalho inválido.')
+        if kind not in ('import','dataset','suggest','suggest_batch','train','evaluate'):raise ValueError('Trabalho inválido.')
         with self.lock:
             if self.active():raise ValueError('Aguarde ou cancele o trabalho atual antes de iniciar outro.')
-            if kind in ('suggest','train','evaluate') and self.monitor:
+            if kind in ('suggest','suggest_batch','train','evaluate') and self.monitor:
                 with self.monitor.lock:
                     if self.monitor.thread and self.monitor.thread.is_alive():
                         raise ValueError('Encerre o monitoramento para evitar disputa de GPU/CPU.')

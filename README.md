@@ -55,6 +55,11 @@ Para importar as fotos antigas, abra **VigiaAI 3.0 → Banco de Imagens e Treina
 imagens, ZIP ou a pasta `amostras_epi/pendentes`. Nenhuma imagem é aprovada ou usada em treino
 automaticamente. Revisão humana, auditoria e aprovação de modelos continuam obrigatórias.
 
+Para agilizar as marcações, filtre a galeria, use **Selecionar todas do filtro** e
+**Sugerir marcações em lote**. Depois abra **Revisar selecionadas** e **Salvar e próxima**.
+As caixas são sugestões: revisão humana por imagem continua obrigatória e nada é treinado
+automaticamente. Anotações existentes e pesos originais são preservados.
+
 Leia o [guia do Banco de Imagens](GUIA-BANCO.md) e o [relatório de implementação](RELATORIO-3.0.md).
 O treino de um classificador separado de cabeças não está habilitado: existe o esquema e a exportação.
 O treinamento disponível é do detector EPI compatível, sem inventar objetos `no_helmet`.

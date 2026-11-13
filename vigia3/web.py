@@ -77,7 +77,15 @@ def register(app,monitor,base,data_root=None):
                 for r in db.execute('SELECT id,name,dhash FROM images WHERE deleted=0 AND id!=?',(iid,))
                 if (int(r['dhash'],16)^int(row['dhash'],16)).bit_count()<=4][:30]
         row['duplicate_annotations']=[json.loads(p.read_text(encoding='utf-8')) for p in (store.root/'anotacoes').glob(f'{iid}-*-duplicata.json')][:30]
+        row['suggestion']=store.suggestion(iid)
         return jsonify(row)
+    @bp.get('/api/banco/images/selection')
+    def selection():
+        return jsonify(ids=store.image_ids(request.args.get('state','all'),request.args.get('q',''),request.args.get('session','')))
+    @bp.post('/api/banco/images/suggest-batch')
+    def suggest_batch():
+        from .suggestions import batch_request
+        return jsonify(job=jobs.start('suggest_batch',batch_request(store,models,data()))),202
     @bp.get('/api/banco/images/<iid>/file')
     def image_file(iid):
         r=store.image(iid)

@@ -28,6 +28,10 @@ def execute(payload,store,folder,progress,cancel):
     torch.set_num_threads(max(1,min(6,(os.cpu_count() or 4)//2)))
     def checkpoint():
         if cancel():raise InterruptedError('Cancelado pelo usuário; arquivos anteriores preservados.')
+    if kind=='suggest_batch':
+        from .suggestions import run_batch
+        checkpoint()
+        return run_batch(store,model,req,payload['id'],YOLO(model['path']),progress,cancel)
     if kind=='suggest':
         image=store.image(req['image']);checkpoint()
         im=store.root/image['relative_path']
