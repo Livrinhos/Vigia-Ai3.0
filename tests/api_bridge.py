@@ -7,7 +7,7 @@ from pathlib import Path
 from iniciar3 import create
 
 with tempfile.TemporaryDirectory() as temp:
-    app=create(Path(__file__).resolve().parents[1]/'.performance-base',Path(temp)/'data');client=app.test_client()
+    app=create(Path(__file__).resolve().parents[1]/'performance',Path(temp)/'data');client=app.test_client()
     for line in sys.stdin:
         message=json.loads(line)
         body=base64.b64decode(message['binary']) if 'binary' in message else message.get('body')

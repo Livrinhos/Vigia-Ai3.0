@@ -19,7 +19,7 @@ class TestJobs(unittest.TestCase):
             with DataLease(path):pass
     def test_separate_process_mutual_exclusion_and_cooperative_cancel(self):
         with tempfile.TemporaryDirectory() as temp:
-            store=Store(temp);jobs=Jobs(store,Path(__file__).parents[1]/'.performance-base',command=[sys.executable,'-u',str(Path(__file__).parent/'fixture_worker.py')])
+            store=Store(temp);jobs=Jobs(store,Path(__file__).parents[1]/'performance',command=[sys.executable,'-u',str(Path(__file__).parent/'fixture_worker.py')])
             jid=jobs.start('train',{})
             try:
                 with self.assertRaises(ValueError):jobs.start('suggest',{})

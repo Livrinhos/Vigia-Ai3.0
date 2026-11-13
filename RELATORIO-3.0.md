@@ -9,12 +9,13 @@ O desenvolvimento continua na branch `development/vigiaai-3-banco-imagens` do re
 `Livrinhos/Vigia-Ai3.0`. A `main` não é usada para publicar estas mudanças e não há merge automático.
 O repositório do Samuel não foi modificado.
 
-O repositório público recebe somente módulos novos, interface, integrador, testes e documentação.
-A base anterior e seus três pesos são integrados localmente, a partir do ZIP privado autorizado,
-com validação do hash do arquivo completo e dos pesos. O pacote local completo entregue ao usuário
-já pode conter essa base integrada. Isso evita republicar o código original sem autorização pública
-esclarecida: ele continua sem LICENSE declarada, e a autorização anterior se referia à cópia privada.
-Nenhum dado ou credencial é necessário no GitHub para executar a aplicação local.
+Atualização da instalação: o repositório agora contém o código completo Performance em
+`performance/` e os módulos 3.0. Uma instalação prepara as duas versões sem selecionar ZIP.
+Os três pesos são obtidos automaticamente do snapshot público de origem e verificados por hash;
+nenhuma foto, dataset, credencial ou peso particular é publicado. Os dois iniciadores usam o
+mesmo ambiente e portas separadas. A publicação conjunta do código foi solicitada explicitamente
+pelo usuário; o registro de origem/permissões está em ORIGEM-E-PERMISSOES.md.
+
 Telemetria e integrações automáticas de plataforma do Ultralytics são desativadas tanto nos
 workers quanto no monitoramento. Callbacks locais de progresso/cancelamento são preservados.
 
@@ -127,7 +128,7 @@ cobertura das cinco classes e critérios sem regressão por classe, além da con
 | Teste | Evidência |
 |---|---|
 | Base preservada | 167 testes Python e 7 JavaScript anteriores aprovados novamente |
-| Módulos 3.0 | 23 testes Python, incluindo importação/galeria/revisão/dataset, fila coletiva, processos e bloqueio da segunda instância |
+| Módulos 3.0 e instalação | 31 testes Python, incluindo importação/galeria/revisão/dataset, fila coletiva, processos e bloqueio da segunda instância |
 | JavaScript 3.0 | Script real da página conectado a rotas Flask reais via ponte, com DOM simulado; importação, abrir imagem e salvar aprovação |
 | Importação em escala | ZIP com 200 PNGs distintos, TXT YOLO e JSON; nenhum aprovado automaticamente |
 | Arquivos maliciosos | Fuga de caminho, link simbólico, ZIP aninhado, expansão excessiva, formato inválido e classes incompatíveis rejeitados |
@@ -176,3 +177,12 @@ afirma que esses arquivos já foram copiados, inventariados ou protegidos por es
 
 O procedimento de instalação, importação das pastas antigas e benchmark real está no README.
 Nenhum resultado fictício foi usado para tornar a apresentação mais impressionante.
+
+## Instalação unificada validada
+
+198 testes Python (167 Performance + 31 aplicação/instalador) e 8 JavaScript aprovados.
+O instalador não abre seletor de ZIP. Foram testados download verificado, rejeição de bytes
+incorretos, preservação de peso treinado diferente, reaproveitamento sem alteração da cópia
+anterior e os dois iniciadores. O código completo Performance está em performance/.
+A preparação automática pode depender do acesso HTTPS ao GitHub na primeira instalação;
+falhas de rede não autorizam substituir um modelo existente nem dispensar a verificação de hash.

@@ -47,5 +47,5 @@ def run(base,output):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,required=True)
-    p.add_argument('--base',type=Path,default=Path(__file__).resolve().parents[1]/'.performance-base')
+    p.add_argument('--base',type=Path,default=Path(__file__).resolve().parents[1]/'performance')
     a=p.parse_args();run(a.base.resolve(),a.output.resolve())

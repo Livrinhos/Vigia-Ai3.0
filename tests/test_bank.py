@@ -17,7 +17,7 @@ from vigia3.models import Models
 from vigia3.jobs import Jobs,training_request
 from iniciar3 import create
 
-BASE=Path(__file__).resolve().parents[1]/'.performance-base'
+BASE=Path(__file__).resolve().parents[1]/'performance'
 
 
 def picture(seed=0,size=(96,96)):

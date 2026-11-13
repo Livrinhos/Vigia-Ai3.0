@@ -8,7 +8,7 @@ from iniciar3 import create
 from vigia3 import crowd
 from vigia3.crowd import FairQueue,Controller
 
-BASE=Path(__file__).resolve().parents[1]/'.performance-base'
+BASE=Path(__file__).resolve().parents[1]/'performance'
 
 
 def scene(n):

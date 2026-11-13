@@ -6,8 +6,14 @@ import sys
 from pathlib import Path
 
 
+def default_base():
+    if os.getenv('VIGIAAI_PERFORMANCE_BASE'):return Path(os.environ['VIGIAAI_PERFORMANCE_BASE']).resolve()
+    root=Path(__file__).resolve().parent
+    return root/'performance' if (root/'performance/main.py').is_file() else root/'.performance-base'
+
+
 def create(base=None,data_root=None):
-    base=Path(base or os.getenv('VIGIAAI_PERFORMANCE_BASE') or Path(__file__).parent/'.performance-base').resolve()
+    base=Path(base or default_base()).resolve()
     if not (base/'performance/ISOLATED_COPY').is_file():raise ValueError('Integre uma cópia Performance separada. Nunca aponte para a instalação original da apresentação.')
     from vigia3.store import Store
     storage=Store(data_root)

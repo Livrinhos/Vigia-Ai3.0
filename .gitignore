@@ -1,4 +1,4 @@
-# A base com autorização privada é integrada no computador, nunca publicada aqui.
+# Cópias antigas, ambientes, pesos e dados privados ficam fora do GitHub.
 .performance-base/
 .venv3/
 .venv/
@@ -32,3 +32,5 @@ relatorios_privados/
 .vscode/
 .idea/
 Ultralytics/
+*.part
+.download-*

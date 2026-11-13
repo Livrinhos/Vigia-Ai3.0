@@ -1,0 +1,271 @@
+{
+  "repository": "https://github.com/susuque-samuel/VigiaAi",
+  "commit": "e1d054ef33ea1fd007d31ed9c96440327f81859f",
+  "files": [
+    {
+      "path": ".env.example",
+      "bytes": 1459,
+      "sha256": "c523a3a0ad7175c507bed066b75808c77bf2bc5697aefdc1ea0b8001737815aa"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 980,
+      "sha256": "2e70688256b5a9e135a9eb5034b062abd50c106b74238e08befbf2f30809fc12"
+    },
+    {
+      "path": "avaliar_eventos.py",
+      "bytes": 4424,
+      "sha256": "2a3ef663d1976ea566cbf2dd6dc4e7cba0244f5cba272aea52bcc6b54e9118be"
+    },
+    {
+      "path": "avaliar_video.py",
+      "bytes": 2719,
+      "sha256": "9be6be61f972809b313c178aee85350d457934d1ca26f92871b9a759f6e7669d"
+    },
+    {
+      "path": "biblioteca_demo/README.md",
+      "bytes": 920,
+      "sha256": "c21a93c2379151a6698792b8b5c8959b310c5d9b47ac269262ee870cee6d0b86"
+    },
+    {
+      "path": "central_monitoramento.py",
+      "bytes": 23632,
+      "sha256": "8e8dfc4b4099d00213149ca34bedb2255f96a06ba37bcc42a1ba110b70072239"
+    },
+    {
+      "path": "dataset_epi/data.yaml",
+      "bytes": 186,
+      "sha256": "b8637722b3c4e83b916183d59433bb891e3da80d6820e30085b199261bbab5e5"
+    },
+    {
+      "path": "dataset_ia.py",
+      "bytes": 7752,
+      "sha256": "1fb8013d6d6fe96e650657a27a04a4011c614e8a7f5280a240e68a546967256f"
+    },
+    {
+      "path": "diagnosticar_ia.py",
+      "bytes": 3623,
+      "sha256": "bb9bd649a9c9a276d535fcd8ded10fa27c2c9e25a96e931fc007b4ebe8afefe4"
+    },
+    {
+      "path": "docs/APRIMORAMENTO_IA.md",
+      "bytes": 11542,
+      "sha256": "2e2c2d29171c4f205779988347a28e1cc9468c34a9b26e58154dbd3714cd19d4"
+    },
+    {
+      "path": "docs/CENTRAL_2_1.md",
+      "bytes": 11218,
+      "sha256": "85b479013b1d7094acda180552f567cdd882b700b576cf5e85e94d98b7e8815a"
+    },
+    {
+      "path": "docs/DATASETS_IA.md",
+      "bytes": 3602,
+      "sha256": "6059d7705c06e5b508aef3108b4a1884915cb42120f3cc5292b75a0b92bbece9"
+    },
+    {
+      "path": "docs/README_2_1_HISTORICO.md",
+      "bytes": 7569,
+      "sha256": "7e0d25390920848824a4a9c4197627f379f8bd2bb74dfbc43bcdaef7b9795f83"
+    },
+    {
+      "path": "docs/README_ORIGINAL.md",
+      "bytes": 5752,
+      "sha256": "b0d50ae03c594bef34532af0cf7f6399f592e37b1c7d03bad74a326bdcdfdd4e"
+    },
+    {
+      "path": "epi.pt",
+      "bytes": 6246435,
+      "sha256": "1f9fdde980c2e56c22c8857b778b5213fb07fc21fbcdb05fe71ef9c1fb50ce0e"
+    },
+    {
+      "path": "epi_inferencia.py",
+      "bytes": 5405,
+      "sha256": "cc271aedf177a9eaac799b34f826596932d2d63308ffd6b8e890f34dbf152bce"
+    },
+    {
+      "path": "epi_monitoramento.py",
+      "bytes": 25986,
+      "sha256": "0deaf474807aca39547206d5b2d59d2613fb13536dc9664fc77977e8243f2446"
+    },
+    {
+      "path": "iniciar_vigiaai.ps1",
+      "bytes": 732,
+      "sha256": "8cf8ab012c8c8caa6ebcdf4f05a1ea08c712699b62cd721391d28dd001b4ce4a"
+    },
+    {
+      "path": "main.py",
+      "bytes": 37302,
+      "sha256": "02cbbbf311b0836ee1c722f86bb8d4c1d87a780ca3a0c783cbbc5f1e44eae0c1"
+    },
+    {
+      "path": "MONITORAMENTO_E_COLETA.md",
+      "bytes": 10890,
+      "sha256": "fb32bedc2d4656dcdf1843435aedbdab827a3942d366c924ded0c4e054db465f"
+    },
+    {
+      "path": "preparar_dataset.py",
+      "bytes": 5767,
+      "sha256": "212fa9e6c6cfc9b69648e8a30a3aa312f1815c0233a8ae7154300c3a1618196e"
+    },
+    {
+      "path": "queda_temporal.py",
+      "bytes": 10051,
+      "sha256": "d53c8475d89c417ab97f8a9a7b1478fbe5aa91fc898392d5b05362de1ef44dd7"
+    },
+    {
+      "path": "README.md",
+      "bytes": 8414,
+      "sha256": "4f40d8de623a3295eb25144d5a17d5204ce9bf6678f36cc7e81520be6f4224c1"
+    },
+    {
+      "path": "requirements-cpu.txt",
+      "bytes": 166,
+      "sha256": "0538660b78911dcb50d7722fc37ce482a70a7579289b6078ae843af4f0428be3"
+    },
+    {
+      "path": "requirements-cuda.txt",
+      "bytes": 177,
+      "sha256": "40ebfdfa8e485b3832bbe4c041b822a13c0a1fa6cc15b00020f977899db7343e"
+    },
+    {
+      "path": "requirements.txt",
+      "bytes": 324,
+      "sha256": "77fe70954f89502cd060d9d0d1ddf1c0f5559505e6216a6814a6aaf08b12cff1"
+    },
+    {
+      "path": "runs/detect/treinamento_epi-2/weights/best.pt",
+      "bytes": 6257251,
+      "sha256": "eeac8b62d3d78052c736981dd7ad1554a8902ff179b5543d1706f35c9d221bf5"
+    },
+    {
+      "path": "runtime_ia.py",
+      "bytes": 757,
+      "sha256": "47a432355d72383049361c051f90289a9a674d89e3c867bb3ca377d11bc79365"
+    },
+    {
+      "path": "static/demonstracao.css",
+      "bytes": 19827,
+      "sha256": "915191a5f047d591d8b9efa8b6d2a23f70d080dacaf0d30c0f4e37cb2b9580fc"
+    },
+    {
+      "path": "static/demonstracao.js",
+      "bytes": 22576,
+      "sha256": "a7853e5eeb8c7be0802de126b212d824f943e8a79046faa4be45ddb57fb35736"
+    },
+    {
+      "path": "static/painel.css",
+      "bytes": 4526,
+      "sha256": "da919b42185a3e2c594f51ac9ef68649fb97533b8041e8d03f7317e58e1ad9b2"
+    },
+    {
+      "path": "static/painel.js",
+      "bytes": 11040,
+      "sha256": "d9b0a8a4f7c803b828a78d5e340287186a72ea9c285e78385e71ece60190138f"
+    },
+    {
+      "path": "templates/demonstracao.html",
+      "bytes": 11051,
+      "sha256": "b624f7339c6712bce658886f086817c8aa896ad19894c146c60b50da8379f74e"
+    },
+    {
+      "path": "templates/index.html",
+      "bytes": 5108,
+      "sha256": "38c1d33b80dfc139eff125483773c37f91851298ee91d49e37cdde320cb1edaf"
+    },
+    {
+      "path": "tests/api_central.py",
+      "bytes": 2278,
+      "sha256": "06d63dfb42ab8852c1e9a1ccf447422f0370bc0571c0edfb20fe357577563fbf"
+    },
+    {
+      "path": "tests/api_painel.py",
+      "bytes": 1117,
+      "sha256": "157122fc9c8b881e5d83e95a6183f4fcb127641f20c857707b78dbd9d48dc206"
+    },
+    {
+      "path": "tests/servidor_demo.py",
+      "bytes": 2595,
+      "sha256": "057a49a97f4c614d44517cae0ab85542358721040296b0c046681260028e969f"
+    },
+    {
+      "path": "tests/smoke_modelos_integrados.py",
+      "bytes": 2605,
+      "sha256": "c47e5e6d474f2dff7a19e0eeeb90315d26a0862f59aff5638f5327e9af8ccac2"
+    },
+    {
+      "path": "tests/test_central.mjs",
+      "bytes": 7386,
+      "sha256": "5a3b6af7f345421e52048100f7fcd243cd6fa7c45c19cb89f693f548a286c68b"
+    },
+    {
+      "path": "tests/test_central.py",
+      "bytes": 15151,
+      "sha256": "18441a48fa8c902dac071d97ace0f53d2be8a3bbc80002c95fccc0ec8b331ba9"
+    },
+    {
+      "path": "tests/test_dados_avaliacao.py",
+      "bytes": 6402,
+      "sha256": "42b014d14dbdc320fd2d0613139abc0d6cf94db8b4560041aa7aee9a8988bfb8"
+    },
+    {
+      "path": "tests/test_epi_distancia.py",
+      "bytes": 10642,
+      "sha256": "3bc055e3262e091e7061eb4ee8926d92ce2ea517f2e0e5359f48450b11fa3588"
+    },
+    {
+      "path": "tests/test_ia_temporal.py",
+      "bytes": 10022,
+      "sha256": "9b35ecce852f377a3b3023eb95011652c2044db0d8a3fcd701968e470f73a3b5"
+    },
+    {
+      "path": "tests/test_integracao_20261031.py",
+      "bytes": 13089,
+      "sha256": "136e97cdc13bd97b61c4e0eb6085ba6a39e6a505ac5f75db39fde233214f055e"
+    },
+    {
+      "path": "tests/test_monitoramento.py",
+      "bytes": 18231,
+      "sha256": "c75523b6f0948c8bb0a42b22386ed61f14c68cb0c510c6efb119e9e339917c34"
+    },
+    {
+      "path": "tests/test_oculos_limites.py",
+      "bytes": 12812,
+      "sha256": "d80c5d50e898a3d12472eaba620995040e5472e0ce9424fc9fefd633d2d0c996"
+    },
+    {
+      "path": "tests/test_painel.mjs",
+      "bytes": 7242,
+      "sha256": "12e6e1b44930ba63b1b1d761428515e358b34241003b1c3f7dc5450f6cd5e297"
+    },
+    {
+      "path": "tests/test_painel_oculos.mjs",
+      "bytes": 3362,
+      "sha256": "646027c1a9b9ba5ed61ac98cffe99b71c4de26e8121ead0c5d71f33bd533a5e5"
+    },
+    {
+      "path": "tests/test_quedas.py",
+      "bytes": 9583,
+      "sha256": "085c5cd73dce64ab45a941d1c950f6291f4fd6b633dfb85958196a3cdd4b359d"
+    },
+    {
+      "path": "tests/validar_integracao.py",
+      "bytes": 1791,
+      "sha256": "d17b1c8310fa142a31df2dc51b104bafb485ea4f1588630f993a0bd1b9789324"
+    },
+    {
+      "path": "TREINAMENTO_EPI.md",
+      "bytes": 4595,
+      "sha256": "cce0ba543d939e610e88ffa3ad5aba345ee6a9f452cbc82f46406fb0c8d33050"
+    },
+    {
+      "path": "treinar_epi.py",
+      "bytes": 7539,
+      "sha256": "5aca6c5247f4f0baa6e6816f1fe53c5a1ff137f6743487698008ba6abd776fa3"
+    },
+    {
+      "path": "yolov8n.pt",
+      "bytes": 6549796,
+      "sha256": "f59b3d833e2ff32e194b5bb8e08d211dc7c5bdf144b90d2c8412c47ccfc83b36"
+    }
+  ]
+}

@@ -9,7 +9,7 @@ from pathlib import Path
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--base',type=Path,default=Path(__file__).parent/'.performance-base')
+    p.add_argument('--base',type=Path,default=Path(__file__).parent/'performance')
     p.add_argument('--video',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     p.add_argument('--device',choices=['cpu','0'],default='0');p.add_argument('--baseline',action='store_true')
     p.add_argument('--people-declared',type=int,choices=[1,5,10,15,20,25],required=True)
