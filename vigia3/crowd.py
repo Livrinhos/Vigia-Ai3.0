@@ -244,6 +244,10 @@ def install(main,monitor):
         _local.controller=ctrl
         try:
             try:
+                from .privacy import local_only
+                local_only()
+            except ImportError:pass  # O pipeline da base informa falta da dependência.
+            try:
                 import mediapipe as mp
                 original_pose=mp.solutions.pose.Pose
                 class Pose:

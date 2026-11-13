@@ -16,10 +16,9 @@ def execute(payload,store,folder,progress,cancel):
     req=payload['request'];kind=payload['kind']
     if kind=='import':return Importer(store).finish(req['upload'],progress,cancel)
     if kind=='dataset':return DatasetBuilder(store,base).prepare(req.get('name','Dataset'),req.get('sessions'),req.get('kind','detector'),progress,cancel,req.get('test_independent',False))
+    from .privacy import local_only
+    local_only()
     from ultralytics import YOLO
-    from ultralytics import settings
-    private_settings={k:False for k in ('sync','hub','wandb','mlflow','clearml','neptune','comet','dvc','raytune','tensorboard') if k in settings}
-    if private_settings:settings.update(private_settings)
     import torch
     models=Models(store,base)
     model=models.get(req['model'])

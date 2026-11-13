@@ -15,6 +15,8 @@ com validação do hash do arquivo completo e dos pesos. O pacote local completo
 já pode conter essa base integrada. Isso evita republicar o código original sem autorização pública
 esclarecida: ele continua sem LICENSE declarada, e a autorização anterior se referia à cópia privada.
 Nenhum dado ou credencial é necessário no GitHub para executar a aplicação local.
+Telemetria e integrações automáticas de plataforma do Ultralytics são desativadas tanto nos
+workers quanto no monitoramento. Callbacks locais de progresso/cancelamento são preservados.
 
 ## Funcionalidades reais implementadas
 
